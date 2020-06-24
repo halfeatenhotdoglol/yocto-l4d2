@@ -99,6 +99,7 @@ void __fastcall hooks::paint(PVOID engine, int edx, int mode)
 				if (entity->is_entity_valid()) {
 					if (((class_id == handle_structs::class_ids::Infected) || (class_id == handle_structs::class_ids::CInsectSwarm)))
 						draw.draw_string(screen.x, screen.y, COLORCODE(0, 255, 0, 255), "infected");
+					screen.y += ESP_HEIGHT;
 				}
 			}
 		};
