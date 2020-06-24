@@ -24,7 +24,7 @@ void c_draw::draw_string(int x, int y, DWORD clr, const char* text, ...)
 	vsprintf_s(szBuffer, text, va_alist);
 	va_end(va_alist);
 
-	wsprintfW(szString, L"%S", szBuffer);
+	MultiByteToWideChar(CP_UTF8, 0, szBuffer, -1, szString, 128);
 
 	ints.isurface->draw_set_text_pos(x, y);
 	ints.isurface->draw_set_text_font(font);
