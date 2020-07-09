@@ -2,6 +2,8 @@
 
 #include "sdk.h"
 
+// darkstorm
+
 #define RED(COLORCODE)	((int) ( COLORCODE >> 24) )
 #define BLUE(COLORCODE)	((int) ( COLORCODE >> 8 ) & 0xFF )
 #define GREEN(COLORCODE)	((int) ( COLORCODE >> 16 ) & 0xFF )
@@ -14,7 +16,8 @@ private:
 	unsigned long font;
 public:
 	void initialize_font();
-	void draw_string(int x, int y, DWORD dwColor, const char* pszText, ...);
-	bool w2s(vector& vOrigin, vector& vScreen);
+	void draw_string(int x, int y, DWORD dwColor, const char * pszText, ...);
+	bool w2s(vector & vOrigin, vector & vScreen);
 };
-extern  c_draw draw;
+
+extern c_draw draw;

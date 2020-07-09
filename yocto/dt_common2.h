@@ -35,7 +35,7 @@
 #define SPROP_UNSIGNED			(1<<0)	// Unsigned integer data.
 
 #define SPROP_COORD				(1<<1)	// If this is set, the float/vector is treated like a world coordinate.
-										// Note that the bit count is ignored in this case.
+// Note that the bit count is ignored in this case.
 
 #define SPROP_NOSCALE			(1<<2)	// For floating point, don't scale into range, just take value as is.
 
@@ -50,19 +50,19 @@
 #define SPROP_XYZE				(1<<7)	// Use XYZ/Exponent encoding for vectors.
 
 #define SPROP_INSIDEARRAY		(1<<8)	// This tells us that the property is inside an array, so it shouldn't be put into the
-										// flattened property list. Its array will point at it when it needs to.
+// flattened property list. Its array will point at it when it needs to.
 
 #define SPROP_PROXY_ALWAYS_YES	(1<<9)	// Set for datatable props using one of the default datatable proxies like
-										// SendProxy_DataTableToDataTable that always send the data to all clients.
+// SendProxy_DataTableToDataTable that always send the data to all clients.
 
 #define SPROP_CHANGES_OFTEN		(1<<10)	// this is an often changed field, moved to head of sendtable so it gets a small index
 
 #define SPROP_IS_A_vector_ELEM	(1<<11)	// Set automatically if SPROP_vectorELEM is used.
 
 #define SPROP_COLLAPSIBLE		(1<<12)	// Set automatically if it's a datatable with an offset of 0 that doesn't change the pointer
-										// (ie: for all automatically-chained base classes).
-										// In this case, it can get rid of this SendPropDataTable altogether and spare the
-										// trouble of walking the hierarchy more than necessary.
+// (ie: for all automatically-chained base classes).
+// In this case, it can get rid of this SendPropDataTable altogether and spare the
+// trouble of walking the hierarchy more than necessary.
 
 #define SPROP_COORD_MP					(1<<13) // Like SPROP_COORD, but special handling for multiplayer games
 #define SPROP_COORD_MP_LOWPRECISION 	(1<<14) // Like SPROP_COORD, but special handling for multiplayer games where the fractional component only gets a 3 bits instead of 5
@@ -98,7 +98,8 @@ typedef enum
 	DPT_vector,
 	DPT_vectorXY,
 	DPT_String,
-	DPT_Array,	// An array of the base types (can't be of datatables).
+	DPT_Array,
+	// An array of the base types (can't be of datatables).
 	DPT_DataTable,
 #if 0 // We can't ship this since it changes the size of DTVariant to be 20 bytes instead of 16 and that breaks MODs!!!
 	DPT_Quaternion,
@@ -111,7 +112,12 @@ class DVariant
 {
 public:
 	DVariant() { m_Type = DPT_Float; }
-	DVariant(float val) { m_Type = DPT_Float; m_Float = val; }
+
+	DVariant(float val)
+	{
+		m_Type = DPT_Float;
+		m_Float = val;
+	}
 
 	const char* ToString()
 	{
@@ -127,7 +133,7 @@ public:
 			break;
 		case DPT_vector:
 			sprintf_s(text, sizeof(text), "(%.3f,%.3f,%.3f)",
-				m_vector[0], m_vector[1], m_vector[2]);
+			          m_vector[0], m_vector[1], m_vector[2]);
 			break;
 #if 0 // We can't ship this since it changes the size of DTVariant to be 20 bytes instead of 16 and that breaks MODs!!!
 		case DPT_Quaternion:
@@ -136,10 +142,11 @@ public:
 			break;
 #endif
 		case DPT_String:
-			if (m_pString)
-				return m_pString;
-			else
+			{
+				if (m_pString)
+					return m_pString;
 				return "NULL";
+			}
 			break;
 		case DPT_Array:
 			sprintf_s(text, sizeof(text), "Array");
@@ -157,17 +164,18 @@ public:
 
 	union
 	{
-		float	m_Float;
-		long	m_Int;
-		char* m_pString;
-		void* m_pData;	// For DataTables.
+		float m_Float;
+		long m_Int;
+		char * m_pString;
+		void * m_pData; // For DataTables.
 #if 0 // We can't ship this since it changes the size of DTVariant to be 20 bytes instead of 16 and that breaks MODs!!!
 		float	m_vector[4];
 #else
-		float	m_vector[3];
+		float m_vector[3];
 #endif
 	};
-	SendPropType	m_Type;
+
+	SendPropType m_Type;
 };
 
 

@@ -1,13 +1,13 @@
 #include "sdk.h"
 #include "baseapi.h"
 
-#define INRANGE(x,a,b)    (x >= a && x <= b) 
+#define INRANGE(x,a,b)    (x >= a && x <= b)
 #define getBits( x )    (INRANGE((x&(~0x20)),'A','F') ? ((x&(~0x20)) - 'A' + 0xa) : (INRANGE(x,'0','9') ? x - '0' : 0))
 #define getByte( x )    (getBits(x[0]) << 4 | getBits(x[1]))
 
-void* base_api::find_sub_start(void* address, int maxsearch)
+void* base_api::find_sub_start(void * address, int maxsearch)
 {
-	for (unsigned char* i = (unsigned char*)address; maxsearch != 1; i--)
+	for (unsigned char * i = static_cast<unsigned char*>(address); maxsearch != 1; i--)
 	{
 		maxsearch--;
 		if (maxsearch == 1)
@@ -18,25 +18,24 @@ void* base_api::find_sub_start(void* address, int maxsearch)
 	return 0;
 }
 
-void* base_api::find_sub_end(void* address, int maxsearch)
+void* base_api::find_sub_end(void * address, int maxsearch)
 {
-	for (unsigned char* i = (unsigned char*)address; maxsearch != 1; i++)
+	for (unsigned char * i = static_cast<unsigned char*>(address); maxsearch != 1; i++)
 	{
 		maxsearch--;
 
 		if (maxsearch == 1)
 			break;
 
-		if (*(unsigned char*)i == 0xC3 || *(unsigned char*)i == 0xC2)
+		if (*static_cast<unsigned char*>(i) == 0xC3 || *static_cast<unsigned char*>(i) == 0xC2)
 			return i;
 	}
 
 	return 0;
 }
 
-int base_api::find_sub_size(void* address, int maxsearch)
+int base_api::find_sub_size(void * address, int maxsearch)
 {
-
 	int start = (int)find_sub_start(address, maxsearch);
 	int end = (int)find_sub_end(address, maxsearch);
 
@@ -49,18 +48,18 @@ int base_api::find_sub_size(void* address, int maxsearch)
 	return end - start;
 }
 
-void* base_api::find_string(void* p, const char* string, int len)
+void* base_api::find_string(void * p, const char * string, int len)
 {
-
 	if (!p)
 		return FALSE;
 
-	char* start, * str = 0;
+	char *start, *str = 0;
 	int fag = 0;
 	int stringlen = strlen(string);
 
-	try {
-		for (start = (char*)p; !str; start++)
+	try
+	{
+		for (start = static_cast<char*>(p); !str; start++)
 		{
 			fag++;
 			if (len && len != 0 && fag > len)
@@ -76,12 +75,18 @@ void* base_api::find_string(void* p, const char* string, int len)
 			if (*(char**)start == str)
 				return start;
 		}
-	} catch (...) { start = 0; return FALSE; }
+	}
+	catch (...)
+	{
+		start = 0;
+		return FALSE;
+	}
 
 	return FALSE;
 }
 
-void* base_api::get_interfaces(const char* name, const char* interfacen, const char* ptr_name, create_interface pinterface)
+void* base_api::get_interfaces(const char * name, const char * interfacen, const char * ptr_name,
+                               create_interface pinterface)
 {
 	std::string string_interface = "";
 	std::string interface_version = "0";
@@ -92,7 +97,7 @@ void* base_api::get_interfaces(const char* name, const char* interfacen, const c
 		string_interface += interface_version;
 		string_interface += std::to_string(i);
 
-		void* func_ptr{ pinterface(string_interface.c_str(), NULL) };
+		void * func_ptr{pinterface(string_interface.c_str(), NULL)};
 		if ((DWORD)func_ptr != 0x0)
 			return func_ptr;
 		if (i >= 99 && interface_version == "0")
@@ -106,20 +111,22 @@ void* base_api::get_interfaces(const char* name, const char* interfacen, const c
 	return FALSE;
 }
 
-DWORD base_api::find_pattern(DWORD address, DWORD len, const char* pattern)
+DWORD base_api::find_pattern(DWORD address, DWORD len, const char * pattern)
 {
-	const char* pat{ pattern };
+	const char * pat{pattern};
 	DWORD firstMatch = NULL;
 	for (DWORD pCur = address; pCur < len; pCur++)
 	{
 		if (!*pat) return firstMatch;
-		if (*(PBYTE)pat == '\?' || *(BYTE*)pCur == getByte(pat)) {
+		if (*(PBYTE)pat == '\?' || *(BYTE*)pCur == getByte(pat))
+		{
 			if (!firstMatch) firstMatch = pCur;
 			if (!pat[2]) return firstMatch;
-			if (*(PWORD)pat == '\?\?' || *(PBYTE)pat != '\?') pat += 3;
-			else pat += 2;
+			if (*(PWORD)pat == '\?\ ? ' || *(PBYTE)pat != '\ ? ') pat += 3;
+				else pat += 2;
 		}
-		else {
+		else
+		{
 			pat = pattern;
 			firstMatch = 0;
 		}
@@ -127,19 +134,20 @@ DWORD base_api::find_pattern(DWORD address, DWORD len, const char* pattern)
 	return NULL;
 }
 
-HMODULE base_api::get_module(const char* name)
+HMODULE base_api::get_module(const char * name)
 {
-	HMODULE hmModuleHandle{ NULL };
+	HMODULE hmModuleHandle{NULL};
 	do
 	{
-		hmModuleHandle = GetModuleHandle((LPCSTR)name);
+		hmModuleHandle = GetModuleHandle(static_cast<LPCSTR>(name));
 		Sleep(1);
-	} while (hmModuleHandle == NULL);
+	}
+	while (hmModuleHandle == NULL);
 
 	return hmModuleHandle;
 }
 
-void base_api::log_file(const char* message, ...)
+void base_api::log_file(const char * message, ...)
 {
 	if (!console_init)
 	{
@@ -155,8 +163,8 @@ void base_api::log_file(const char* message, ...)
 	}
 	va_list va_alist;
 	static char szLogbuf[4096];
-	FILE* fp;
-	struct tm* current_tm;
+	FILE * fp;
+	struct tm * current_tm;
 	time_t current_time;
 
 	time(&current_time);
@@ -190,38 +198,43 @@ void base_api::clear_console()
 	PostMessageW(GetConsoleWindow(), WM_CLOSE, 0, 0);
 }
 
-DWORD base_api::get_client_sig(char* pattern)
+DWORD base_api::get_client_sig(char * pattern)
 {
-	static HMODULE hmModule{ get_module("client.dll") };
+	static HMODULE hmModule{get_module("client.dll")};
 	static PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)hmModule;
 	static PIMAGE_NT_HEADERS pNTHeaders = (PIMAGE_NT_HEADERS)(((DWORD)hmModule) + pDOSHeader->e_lfanew);
-	return find_pattern(((DWORD)hmModule) + pNTHeaders->OptionalHeader.BaseOfCode, ((DWORD)hmModule) + pNTHeaders->OptionalHeader.SizeOfCode, pattern);
-	return 0;
-}
-DWORD base_api::get_sig(char* mod, char* pattern)
-{
-	static HMODULE hmModule{ get_module(mod) };
-	static PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)hmModule;
-	static PIMAGE_NT_HEADERS pNTHeaders = (PIMAGE_NT_HEADERS)(((DWORD)hmModule) + pDOSHeader->e_lfanew);
-	return find_pattern(((DWORD)hmModule) + pNTHeaders->OptionalHeader.BaseOfCode, ((DWORD)hmModule) + pNTHeaders->OptionalHeader.SizeOfCode, pattern);
-	return 0;
-}
-DWORD base_api::get_engine_sig(char* pattern)
-{
-	static HMODULE hmModule{ get_module("engine.dll") };
-	static PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)hmModule;
-	static PIMAGE_NT_HEADERS pNTHeaders = (PIMAGE_NT_HEADERS)(((DWORD)hmModule) + pDOSHeader->e_lfanew);
-	return find_pattern(((DWORD)hmModule) + pNTHeaders->OptionalHeader.BaseOfCode, ((DWORD)hmModule) + pNTHeaders->OptionalHeader.SizeOfCode, pattern);
+	return find_pattern(((DWORD)hmModule) + pNTHeaders->OptionalHeader.BaseOfCode,
+	                    ((DWORD)hmModule) + pNTHeaders->OptionalHeader.SizeOfCode, pattern);
 	return 0;
 }
 
-void base_api::error_box(const char* error)
+DWORD base_api::get_sig(char * mod, char * pattern)
 {
-	std::string s{ error };
+	static HMODULE hmModule{get_module(mod)};
+	static PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)hmModule;
+	static PIMAGE_NT_HEADERS pNTHeaders = (PIMAGE_NT_HEADERS)(((DWORD)hmModule) + pDOSHeader->e_lfanew);
+	return find_pattern(((DWORD)hmModule) + pNTHeaders->OptionalHeader.BaseOfCode,
+	                    ((DWORD)hmModule) + pNTHeaders->OptionalHeader.SizeOfCode, pattern);
+	return 0;
+}
+
+DWORD base_api::get_engine_sig(char * pattern)
+{
+	static HMODULE hmModule{get_module("engine.dll")};
+	static PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)hmModule;
+	static PIMAGE_NT_HEADERS pNTHeaders = (PIMAGE_NT_HEADERS)(((DWORD)hmModule) + pDOSHeader->e_lfanew);
+	return find_pattern(((DWORD)hmModule) + pNTHeaders->OptionalHeader.BaseOfCode,
+	                    ((DWORD)hmModule) + pNTHeaders->OptionalHeader.SizeOfCode, pattern);
+	return 0;
+}
+
+void base_api::error_box(const char * error)
+{
+	std::string s{error};
 	int len;
-	int slength = (int)s.length() + 1;
+	int slength = static_cast<int>(s.length()) + 1;
 	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
-	wchar_t* buf = new wchar_t[len];
+	wchar_t * buf = new wchar_t[len];
 	MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
 	std::wstring r(buf);
 	delete[] buf;

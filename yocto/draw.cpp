@@ -10,13 +10,14 @@ void c_draw::initialize_font()
 	ints.isurface->set_font(font, "Courier New", 15, 0, 0, 0, 0x200);
 	ints.isurface->get_screen_size(screen_size.screen_width, screen_size.screen_height);
 }
-void c_draw::draw_string(int x, int y, DWORD clr, const char* text, ...)
+
+void c_draw::draw_string(int x, int y, DWORD clr, const char * text, ...)
 {
 	if (text == NULL) return;
 
 	va_list va_alist;
-	char szBuffer[1024] = { '\0' };
-	wchar_t szString[1024] = { '\0' };
+	char szBuffer[1024] = {'\0'};
+	wchar_t szString[1024] = {'\0'};
 
 	int width, height;
 
@@ -32,18 +33,25 @@ void c_draw::draw_string(int x, int y, DWORD clr, const char* text, ...)
 	ints.isurface->draw_print_text(szString, wcslen(szString));
 }
 
-bool c_draw::w2s(vector& origin, vector& scr)
+bool c_draw::w2s(vector & origin, vector & scr)
 {
-	const matrix3x4& world_to_screen = ints.engine->w2s_matrix(); 
+	const matrix3x4 & world_to_screen = ints.engine->w2s_matrix();
 
-	float w = world_to_screen[3][0] * origin[0] + world_to_screen[3][1] * origin[1] + world_to_screen[3][2] * origin[2] + world_to_screen[3][3]; 
-	scr.z = 0; 
+	float w = world_to_screen[3][0] * origin[0] + world_to_screen[3][1] * origin[1] + world_to_screen[3][2] * origin[2]
+		+ world_to_screen[3][3];
+	scr.z = 0;
 
-	if (w > 0.001) 
+	if (w > 0.001)
 	{
-		float fl1DBw = 1 / w; 
-		scr.x = (screen_size.screen_width / 2) + (0.5 * ((world_to_screen[0][0] * origin[0] + world_to_screen[0][1] * origin[1] + world_to_screen[0][2] * origin[2] + world_to_screen[0][3]) * fl1DBw) * screen_size.screen_width + 0.5); 
-		scr.y = (screen_size.screen_height / 2) - (0.5 * ((world_to_screen[1][0] * origin[0] + world_to_screen[1][1] * origin[1] + world_to_screen[1][2] * origin[2] + world_to_screen[1][3]) * fl1DBw) * screen_size.screen_height + 0.5); 
+		float fl1DBw = 1 / w;
+		scr.x = (screen_size.screen_width / 2) + (0.5 * ((world_to_screen[0][0] * origin[0] + world_to_screen[0][1] *
+				origin[1] + world_to_screen[0][2] * origin[2] + world_to_screen[0][3]) * fl1DBw) * screen_size.
+			screen_width
+			+ 0.5);
+		scr.y = (screen_size.screen_height / 2) - (0.5 * ((world_to_screen[1][0] * origin[0] + world_to_screen[1][1] *
+				origin[1] + world_to_screen[1][2] * origin[2] + world_to_screen[1][3]) * fl1DBw) * screen_size.
+			screen_height
+			+ 0.5);
 		return true;
 	}
 
