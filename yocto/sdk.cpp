@@ -1,6 +1,6 @@
 #include "sdk.h"
 
-const handle_structs::class_groups::groups ssdk::c_base_entity::get_entity_group(c_base_entity * ent)
+auto ssdk::c_base_entity::get_entity_group(c_base_entity * ent) const -> handle_structs::class_groups::groups
 {
 	constexpr int boss[] = {handle_structs::class_ids::Tank, handle_structs::class_ids::Witch};
 	constexpr int special[] = {
@@ -23,7 +23,7 @@ const handle_structs::class_groups::groups ssdk::c_base_entity::get_entity_group
 	return handle_structs::class_groups::groups::NONE;
 }
 
-const bool ssdk::c_base_entity::is_entity_valid()
+auto ssdk::c_base_entity::is_entity_valid() -> bool
 {
 	const auto team{g_offsets.get_team_num(this)};
 	if (team != 2 && team != 3)
@@ -34,7 +34,7 @@ const bool ssdk::c_base_entity::is_entity_valid()
 	auto flags{this->get_collideable()->get_solid_flags()};
 	auto witch_rage{g_offsets.get_witch_state(this)};
 
-	auto realize_validity = [&](void)
+	auto realize_validity = [&](void) -> bool
 	{
 		if (group == handle_structs::class_groups::NONE) return false;
 		if (group == handle_structs::class_groups::STRONK)
@@ -55,7 +55,5 @@ const bool ssdk::c_base_entity::is_entity_valid()
 		}
 	};
 
-	realize_validity();
-	
-	return true;
+	return realize_validity();
 }
